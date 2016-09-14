@@ -132,11 +132,11 @@ Samba::init()
 
     _port->timeout(TIMEOUT_NORMAL);
 
-    if (_debug)
-        printf("chipId=%#08x\n", cid);
-
     uint8_t eproc = (cid >> 5) & 0x7;
     uint8_t arch = (cid >> 20) & 0xff;
+
+    if (_debug)
+        printf("chipId=%#08x eproc=%i arch=%02X\n", cid, eproc, arch);
 
     // Check for ARM7TDMI processor
     if (eproc == 2)
@@ -158,6 +158,15 @@ Samba::init()
         if (_debug)
             printf("Unsupported Cortex-M3 architecture\n");
     }
+    // Check for Cortex-M4 processor
+    else if (eproc == 7)
+    {
+        // Check for SAM4 architecture
+        if (arch == 0x89)
+            return true;
+        if (_debug)
+            printf("Unsupported Cortex-M4 architecture\n");
+    }
     // Check for ARM920T processor
     else if (eproc == 4)
     {
@@ -176,7 +185,7 @@ Samba::init()
     else
     {
         if (_debug)
-            printf("Unsupported processor\n");
+            printf("Unsupported processor %08X\n", cid);
     }
 
     return false;
